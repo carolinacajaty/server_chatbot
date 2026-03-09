@@ -39,6 +39,14 @@ app.use(function (request, response, next) {
 // Deuxième middleware : Routage personnalisé (cf. Routage simple dans connect/express)
 app.use(function (request, response, next) {
     if (request.method == "POST") {
+        app.use(function (request, response, next) {
+            if (request.url === "/") {
+                response.writeHead(200, { 'Content-Type': 'text/plain' });
+                response.end('Servidor Online!');
+            } else {
+                next();
+            }
+        });
         if (request.url == "/chat") {
             if (request.headers['content-type'] == 'application/json') {
                 response.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
