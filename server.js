@@ -41,8 +41,13 @@ app.use(function (request, response, next) {
     if (request.method == "POST") {
         app.use(function (request, response, next) {
             if (request.url === "/") {
-                response.writeHead(200, { 'Content-Type': 'text/plain' });
-                response.end('Servidor Online!');
+                response.writeHead(200, {
+                    'Content-Type': 'text/plain; charset=utf-8',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                });
+                response.end('Serveur online');
             } else {
                 next();
             }
