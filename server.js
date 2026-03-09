@@ -2,7 +2,7 @@
 require('dotenv').config(); // Charge les variables depuis le fichier .env (ex: GEMINI_API_KEY)
 
 const connect = require('connect') // Framework middleware, précurseur d'Express (cf. module 'connect' dans le cours)
-const { GoogleGenAI } = require('@google/genai');  // Module NPM importé via l'API Modules de CommonJS
+const { GoogleGenAI } = require('@google/generative-ai');  // Module NPM importé via l'API Modules de CommonJS
 const url = require('url'); // Module natif de Node.js pour analyser les URLs
 
 // Création de l'application basée sur un ensemble ordonné de middlewares
