@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "node src/server.js"
+  },
+   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "connect": "^3.7.0",
+    "dotenv": "^17.3.1"
+  }
+}

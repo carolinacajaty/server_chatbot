@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <title>Chat with Gemini</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box;}
+        
+        body {
+            background-color: #F0F4F8;
+            color: black;
+            font-family: sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        body.dark {
+            background-color: #242424;
+            color: white;
+        }
+        
+        #welcome {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        #welcome.hidden {display:none;}
+
+        .welcome-content {
+            background: white;
+            padding: 40px 36px;
+            border-radius: 16px;
+            width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 18px;
+            flex-direction: column;
+        }
+
+        .welcome-content h2 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .welcome-content p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input[type="text"],
+
+        .form-group input[type="email"] {
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus { border-color: #555; }
+
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .remember-row input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .welcome-content button.start-btn {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .welcome-content button.start-btn:hover { opacity: 0.8; }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 24px 32px;
+        }
+
+        .top-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+            gap: 8px;
+        }
+        
+        .form-group input.invalid {
+            border-color: red;
+        }
+
+        .error-msg {
+            font-size: 11px;
+            color: red;
+            display: none;
+        }
+
+        .error-msg.visible { display: block; }
+
+        .top-bar button {
+            padding: 8px 14px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+            color: black;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body.dark .top-bar button {
+            background: #1a1a26;
+            color: white;
+            border-color: #444;
+        }
+
+        .greeting {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .greeting h1 {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .greeting p {
+            font-size: 15px;
+            color: #888;
+        }
+
+        #sendBtn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        #sendBtn:hover { background: rgba(0,0,0,0.08); }
+        
+        body.dark #sendBtn:hover { background: rgba(255,255,255,0.1); }
+        
+        body.dark .greeting p { color: #666; }
+
+        .input-group {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .top-bar button,
+        .icon-btn {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .top-bar button:hover,
+        .icon-btn:hover {
+            background: rgba(0, 0, 0, 0.08) !important;
+        }
+
+        body.dark .top-bar button:hover,
+        body.dark .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 12px 48px 12px 16px;
+            font-size: 14px;
+            border: none !important;
+            outline: none !important;
+            border-radius: 999px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body.dark .input-group input[type="text"] {
+            background: #383838;
+            color: white;
+        }
+
+        .input-group button {
+            padding: 12px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background: black;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        body.dark .input-group button { background: white; color: black; }
+
+        .input-group button:hover { opacity: 0.8; }
+
+        #loading {
+            display: none;
+            margin-top: 16px;
+            font-size: 13px;
+            color: gray;
+        }
+
+        .chat-container {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 10px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80% ;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background-color: #e9e9eb;
+            color: black;
+        }
+
+        body.dark .ai-message {
+            background-color: #383838;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="welcome">
+        <div class="welcome-content">
+            <h2>Bienvenue</h2>
+            <p>Entrez votre nom pour personnaliser votre expérience.</p>
+
+            <div class="form-group">
+                <label>Prénom *</label>
+                <input type="text" id="inputName" />
+            </div>
+
+            <div class="form-group">
+                <label>Email (optionnel)</label>
+                <input type="email" id="inputEmail" />
+                <span class="error-msg" id="emailError">Email invalide.</span>
+            </div>
+
+            <label class="remember-row">
+                <input type="checkbox" id="rememberMe" checked />
+                Se souvenir de moi la prochaine fois
+            </label>
+
+            <button class="start-btn" onclick="startChat()">Commencer →</button>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="top-bar">
+            <button class="icon-btn" onclick="toggleDark()" title="Dark mode">
+                <span class="material-symbols-outlined" id="darkIcon">dark_mode</span>
+            </button>
+            <button class="icon-btn" onclick="logout()" title="Logout">
+                <span class="material-symbols-outlined">logout</span>
+            </button>
+        </div>
+
+        <div class="greeting">
+            <h1 id="greetingTitle">Bonjour ,</h1>
+            <p>Comment puis-je vous aider aujourd'hui ?</p>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="promptInput" placeholder="Demandez quelque chose à Gemini..."
+                onkeypress="handleKeyPress(event)"
+                oninput="toggleSendBtn()" />
+            <button id="sendBtn" onclick="sendQuery()" style="display:none;">
+                <span class="material-symbols-outlined">send</span>
+            </button>
+        </div>
+
+        <div id="loading">Gemini écrit...</div>
+
+        <div id="chatHistory" class="chat-container">
+            <strong>Réponse :</strong><br />
+        </div>
+    </div>
+
+    <script>
+        // check localStorage on load to auto-login if name is saved
+        window.onload = function () {
+            const savedName = localStorage.getItem('gemini_name');
+            if (savedName) {
+                showApp(savedName);
+            }
+        };
+
+        function startChat() {
+            const name = document.getElementById('inputName').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+            const emailInput = document.getElementById('inputEmail');
+            const emailError = document.getElementById('emailError');
+
+            if (!name) {
+                document.getElementById('inputName').focus();
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (email && !emailRegex.test(email)) {
+                emailInput.classList.add('invalid');
+                emailError.classList.add('visible');
+                emailInput.focus();
+                return;
+            }
+
+            emailInput.classList.remove('invalid');
+            emailError.classList.remove('visible');
+
+            const remember = document.getElementById('rememberMe').checked;
+            if (remember) {
+                localStorage.setItem('gemini_name', name);
+            } else {
+                localStorage.removeItem('gemini_name');
+            }
+
+            showApp(name);
+        }
+
+        function showApp(name) {
+            document.getElementById('welcome').classList.add('hidden');
+            document.getElementById('greetingTitle').textContent = `Bonjour, ${name}`;
+            document.getElementById('promptInput').focus();
+        }
+
+        function logout() {
+            localStorage.removeItem('gemini_name');
+            document.getElementById('welcome').classList.remove('hidden');
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputEmail').value = '';
+        }
+
+        function toggleDark() {
+            const isDark = document.body.classList.toggle('dark');
+            document.getElementById('darkIcon').textContent = isDark ? 'light_mode' : 'dark_mode';
+        }
+
+        function toggleSendBtn() {
+            const input = document.getElementById('promptInput').value;
+            document.getElementById('sendBtn').style.display = input.trim().length > 0 ? 'inline-block' : 'none';
+        }
+
+        // Chat
+        async function sendQuery() {
+            const promptInput = document.getElementById('promptInput');
+            const loadingIndicator = document.getElementById('loading');
+
+            const query = promptInput.value.trim();
+            if (!query) return;
+
+            addMessageToChat('user', query);
+
+            promptInput.value = '';
+            loadingIndicator.style.display = 'block';
+
+            try {
+                const serverUrl = `http://localhost:8081/chat?query=${encodeURIComponent(query)}`;
+                const response = await fetch(serverUrl);
+                if (!response.ok) throw new Error(`Statut : ${response.status}`);
+                const responseText = await response.text();
+
+                addMessageToChat('ai', responseText);
+            } catch (error) {
+                addMessageToChat('ai', `Erreur : Impossible de joindre le serveur. Vérifiez que node server.js tourne sur le port 8081.\n\nDétails : ${error.message}`);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function addMessageToChat(sender, text) {
+            const chatHistory = document.getElementById('chatHistory');
+            const msgDiv = document.createElement('div');
+            
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+            msgDiv.textContent = text;
+            
+            chatHistory.appendChild(msgDiv);
+            
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') sendQuery();
+        }
+    </script>
+
+</body>
+</html>
